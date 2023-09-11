@@ -1,6 +1,8 @@
 #!/bin/env python
 
+import os
 import argparse
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.legend_handler import HandlerTuple
@@ -8,6 +10,9 @@ from astropy.io import ascii
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 from psrqpy import QueryATNF
+
+CODE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(CODE_DIR, '..', 'data')
 
 plt.rcParams['mathtext.fontset'] = 'dejavuserif'
 plt.rcParams['font.family'] = 'serif'
@@ -183,8 +188,8 @@ def main():
     args = parse_args()
 
     # Read files
-    ecliptic_pulsars = list(np.loadtxt(args.fn_ecl, dtype=str, unpack=True, usecols=0, skiprows=1))
-    bright_ecliptic_pulsars_tab = ascii.read(args.fn_bright, format='mrt')
+    ecliptic_pulsars = list(np.loadtxt(os.path.join(DATA_DIR, args.fn_ecl), dtype=str, unpack=True, usecols=0, skiprows=1))
+    bright_ecliptic_pulsars_tab = ascii.read(os.path.join(DATA_DIR, args.fn_bright), format='mrt')
 
     # Convert astropy table column to list
     bright_ecliptic_pulsars = list(bright_ecliptic_pulsars_tab['JNAME'])
@@ -194,7 +199,7 @@ def main():
     query_ecliptic = QueryATNF(params=['PSRJ', 'RAJD', 'DECJD'], psrs=ecliptic_pulsars)
     query_ecliptic_bright = QueryATNF(params=['PSRJ', 'RAJD', 'DECJD'], psrs=bright_ecliptic_pulsars)
     
-    plot_equatorial_skymap(query_all, query_ecliptic, query_ecliptic_bright, args.beta_lim, args.flux_lim, args.fn_outfile)
+    plot_equatorial_skymap(query_all, query_ecliptic, query_ecliptic_bright, args.beta_lim, args.flux_lim, os.path.join(DATA_DIR, args.fn_outfile))
 
 
 if __name__ == '__main__':

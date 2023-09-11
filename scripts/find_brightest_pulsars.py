@@ -1,13 +1,18 @@
 #!/usr/bin/env python
 
+import os
 import textwrap
 import argparse
+
 import numpy as np
 from astropy.table import QTable
 import astropy.units as u
 from psrqpy import QueryATNF
 from pulsar_spectra.spectral_fit import find_best_spectral_fit, estimate_flux_density
 from pulsar_spectra.catalogue import collect_catalogue_fluxes
+
+CODE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(CODE_DIR, '..', 'data')
 
 
 def parse_args():
@@ -145,7 +150,9 @@ def print_results_table(query, flux_matrix, args):
     tab['Flux'].info.format = '.3f'
     tab['Flux_err'].info.format = '.3f'
 
-    tab.write(args.fn_outfile, format='ascii.mrt', overwrite=True)
+    outfile = os.path.join(DATA_DIR, args.fn_outfile)
+
+    tab.write(outfile, format='ascii.mrt', overwrite=True)
 
     if type(args.dmlim) is type(None):
         if args.lowfreqs:
@@ -163,12 +170,12 @@ def print_results_table(query, flux_matrix, args):
 
     wrapped_comment_title = textwrap.fill(comment_title, width=80)
 
-    with open(args.fn_outfile, 'r') as f:
+    with open(outfile, 'r') as f:
         lines = f.readlines()
     
     lines = lines[1:]
     lines.insert(0, wrapped_comment_title + '\n')
-    with open(args.fn_outfile, 'w') as file:
+    with open(outfile, 'w') as file:
         file.writelines(lines)
 
 
@@ -180,7 +187,7 @@ def main():
     else:
         cond = f'DM < {args.dmlim}'
 
-    pulsars = list(np.loadtxt(args.fn_psrs, dtype=str, unpack=True, usecols=0))
+    pulsars = list(np.loadtxt(os.path.join(DATA_DIR, args.fn_psrs), dtype=str, unpack=True, usecols=0))
     query = QueryATNF(psrs=pulsars, params=['JName', 'RAJD', 'DECJD'], condition=cond, checkupdate=True)
     print(f'Catalogue version {query.get_version}')
 

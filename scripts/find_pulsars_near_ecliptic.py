@@ -3,11 +3,15 @@
 import os
 import csv
 import argparse
+
 import numpy as np
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 from tqdm import tqdm
 from psrqpy import QueryATNF
+
+CODE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(CODE_DIR, '..', 'data')
 
 
 def parse_args():
@@ -93,11 +97,11 @@ def main():
     args = parse_args()
 
     # If a lookup table is not found, create one
-    if not os.path.isfile(args.fn_lookup):
-        get_ecliptic_coordinates_from_ATNF(args.fn_lookup)
+    if not os.path.isfile(os.path.join(DATA_DIR, args.fn_lookup)):
+        get_ecliptic_coordinates_from_ATNF(os.path.join(DATA_DIR, args.fn_lookup))
 
     # Find pulsars within specified ecliptic lattitude range
-    with open(args.fn_lookup, 'r') as f:
+    with open(os.path.join(DATA_DIR, args.fn_lookup), 'r') as f:
         spamreader = csv.reader(f, delimiter=' ')
         # Skip the header
         next(spamreader)
@@ -108,7 +112,7 @@ def main():
                 near_ecliptic.append([pulsar, abs(float(b))])
 
     # Write list of pulsars near ecliptic to file
-    with open(args.fn_outfile, 'w') as f:
+    with open(os.path.join(DATA_DIR, args.fn_outfile), 'w') as f:
         spamwriter = csv.writer(f, delimiter=' ')
         spamwriter.writerow(['PSRJ', '|beta|'])
         for pulsar in near_ecliptic:

@@ -4,8 +4,10 @@ import os
 import csv
 import argparse
 import numpy as np
-from psrqpy import QueryATNF
+from astropy.coordinates import SkyCoord
+import astropy.units as u
 from tqdm import tqdm
+from psrqpy import QueryATNF
 
 
 def parse_args():
@@ -31,7 +33,7 @@ def parse_args():
 
 
 def equatorial2ecliptic(ra, dec):
-    """Convert equatorial coordinates to ecliptic coordinates.
+    """Convert equatorial coordinates (J2000) to ecliptic coordinates.
 
     Parameters
     ----------
@@ -47,12 +49,17 @@ def equatorial2ecliptic(ra, dec):
     beta : float
         Ecliptic latitude in degrees.
     """
-    ra = np.radians(ra)
-    dec = np.radians(dec)
-    epsilon = np.radians(23.439281)
-    l = np.arctan2(np.sin(ra)*np.cos(epsilon) + np.tan(dec)*np.sin(epsilon), np.cos(ra))
-    b = np.arcsin(np.sin(dec)*np.cos(epsilon) - np.cos(dec)*np.sin(epsilon)*np.sin(ra))
-    return np.degrees(l), np.degrees(b)
+    # Create a SkyCoord object with equatorial coordinates
+    equatorial_coord = SkyCoord(ra=ra * u.degree, dec=dec * u.degree, frame='icrs')
+
+    # Transform to ecliptic coordinates
+    ecliptic_coord = equatorial_coord.transform_to('barycentrictrueecliptic')
+
+    # Extract ecliptic longitude (l) and ecliptic latitude (b)
+    l = ecliptic_coord.lon.degree
+    b = ecliptic_coord.lat.degree
+
+    return l, b
 
 
 def get_ecliptic_coordinates_from_ATNF(filename):

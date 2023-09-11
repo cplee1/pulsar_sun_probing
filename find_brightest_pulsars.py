@@ -35,6 +35,9 @@ def parse_args():
     parser.add_argument('-o', '--outfile',
                   action='store', type=str, dest='fn_outfile', default='bright_pulsars_near_ecliptic.mrt',
                   help='Name of the file to write the output data to [default: %(default)s]')
+    parser.add_argument('--plot_best',
+                  action='store_true', dest='plot_best', default=False,
+                  help="Plot spectra for modelled pulsars, showing the best-fitting model.")
     
     args = parser.parse_args()
 
@@ -51,7 +54,7 @@ def parse_args():
     return args
 
 
-def get_flux(cat_dict, pulsar, interpfreq, lowfreqs=False):
+def get_flux(cat_dict, pulsar, interpfreq, lowfreqs=False, plot_best=False):
     """Estimate the flux density of a pulsar based on the best-fit spectral model.
 
     Parameters
@@ -87,7 +90,7 @@ def get_flux(cat_dict, pulsar, interpfreq, lowfreqs=False):
             print(f'No low frequency flux measurements for {pulsar}')
             return None, None
     
-    model, m, _, _, _ = find_best_spectral_fit(pulsar, freqs, bands, fluxs, flux_errs, refs, plot_best=True)
+    model, m, _, _, _ = find_best_spectral_fit(pulsar, freqs, bands, fluxs, flux_errs, refs, plot_best=plot_best)
     
     if type(model) is type(None):
         print(f'No best fit model for {pulsar}')
@@ -145,19 +148,26 @@ def print_results_table(query, flux_matrix, args):
     tab.write(args.fn_outfile, format='ascii.mrt', overwrite=True)
 
     if type(args.dmlim) is type(None):
-        comment = f'A list of pulsars with an estimated flux density of > {args.min_flux:.2f} mJy.'
+        if args.lowfreqs:
+            comment_title = f'Title: Pulsars with an estimated flux density of > {args.min_flux:.2f} mJy ' + \
+            f'and flux density data available below 600 MHz.'
+        else:
+            comment_title = f'Title: Pulsars with an estimated flux density of > {args.min_flux:.2f} mJy.'
     else:
-        comment = f'A list of pulsars with an estimated flux density of > {args.min_flux:.2f} mJy ' + \
-        f'and a DM > {args.dmlim:.2f} pc/cc.'
-    if args.lowfreqs:
-        comment += ' Only pulsars with flux density data available below 600 MHz are considered.'
+        if args.lowfreqs:
+            comment_title = f'Title: Pulsars with an estimated flux density of > {args.min_flux:.2f} mJy, ' + \
+            f'a DM > {args.dmlim:.2f} pc/cc, and flux density data available below 600 MHz.'
+        else:
+            comment_title = f'Title: Pulsars with an estimated flux density of > {args.min_flux:.2f} mJy ' + \
+            f'and a DM > {args.dmlim:.2f} pc/cc.'
 
-    wrapped_comment = textwrap.fill(comment, width=80)
+    wrapped_comment_title = textwrap.fill(comment_title, width=80)
 
     with open(args.fn_outfile, 'r') as f:
         lines = f.readlines()
     
-    lines.insert(0, wrapped_comment + '\n')
+    lines = lines[1:]
+    lines.insert(0, wrapped_comment_title + '\n')
     with open(args.fn_outfile, 'w') as file:
         file.writelines(lines)
 
@@ -178,7 +188,7 @@ def main():
     cat_dict = collect_catalogue_fluxes()
     for pulsar in query.table['JNAME']:
         print(f'Estimating flux density for {pulsar}')
-        fitted_flux, fitted_flux_err = get_flux(cat_dict, pulsar, args.obsfreq, args.lowfreqs)
+        fitted_flux, fitted_flux_err = get_flux(cat_dict, pulsar, args.obsfreq, args.lowfreqs, args.plot_best)
         if type(fitted_flux) is type(None):
             continue
         if fitted_flux > 30000:

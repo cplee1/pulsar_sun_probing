@@ -34,8 +34,6 @@ to only include pulsars with flux density measurements available below 600 MHz.
 Furthermore, the `-d DM` option can be used to restrict the list to pulsars below a
 given DM limit (in pc/cc). The example data was created with the following command:
 
-.. code-block::
-
     find_brightest_pulsars.py -l -d 100
 
 

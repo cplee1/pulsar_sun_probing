@@ -29,6 +29,16 @@ given frequency to estimate the flux density. Ranks pulsars based on estimated f
 densities and writes the results to `data/bright_pulsars_near_ecliptic.mrt` as
 a [Machine Readable Table (MRT)](https://journals.aas.org/mrt-standards/).
 
+To improve the reliability of the spectral fits, I have also included the `-l` option
+to only include pulsars with flux density measurements available below 600 MHz.
+Furthermore, the `-d DM` option can be used to restrict the list to pulsars below a
+given DM limit (in pc/cc). The example data was created with the following command:
+
+.. code-block::
+
+    find_brightest_pulsars.py -l -d 100
+
+
 ### plot_equatorial_skymap.py
 Plots a full-sky map in equatorial (RA and DEC) coordinates, indicating the location
 of the ecliptic, the latitude limit, and the pulsars selected by `find_brightest_pulsars.py`.

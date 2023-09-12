@@ -174,7 +174,7 @@ def plot_equatorial_skymap(query_all, query_ecliptic, query_ecliptic_bright,
             'All known pulsars',
             f'Pulsars with $S_{{150}}>{flux_lim:.0f}\,\mathrm{{mJy}}$',
             r'$\beta=0\,\mathrm{deg}$',
-            f'$|\\beta|<{beta_lim:.0f}\,\mathrm{{deg}}$'
+            f'$|\\beta|={beta_lim:.0f}\,\mathrm{{deg}}$'
         ],
         numpoints=1,
         handler_map={tuple: HandlerTuple(ndivide=None)},

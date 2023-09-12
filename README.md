@@ -42,4 +42,4 @@ Plots a full-sky map in equatorial (RA and DEC) coordinates, indicating the loca
 of the ecliptic, the latitude limit, and the pulsars selected by `find_brightest_pulsars.py`.
 Saves the plot to `data/sunpath_skymap.png`.
 
-![equatorial skymap](https://github.com/cplee1/pulsar_sun_probing/blob/786ab262d3f7f266b72f18c5704c67cf5530d72d/data/sunpath_skymap.png)
+![equatorial skymap](https://github.com/cplee1/pulsar_sun_probing/blob/d5a8e74d7b1b4d4ff35eb5f26e8ca1ae4de7cb73/data/sunpath_skymap.png)
